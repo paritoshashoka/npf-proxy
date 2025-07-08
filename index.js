@@ -13,19 +13,13 @@ app.use(express.json());
 app.post('/send-to-npf', async (req, res) => {
   const { token, payload } = req.body;
 
+  // ✅ Token-based access control
   if (token !== PROXY_SECRET) {
     return res.status(403).json({ error: 'Forbidden: Invalid token' });
   }
 
-  // ✅ Optional: Log key fields to verify what's being forwarded
-  console.log('🎯 Sending to NPF:', {
-    name: payload.name,
-    email: payload.email,
-    mobile: payload.mobile,
-    class: payload.field_current_class,
-    stream: payload.field_current_stream,
-    school: payload.field_school_institution
-  });
+  // ✅ Log full payload (for debugging)
+  console.log('📦 Full payload to NPF:', payload);
 
   try {
     const npfResponse = await axios.post(
@@ -40,9 +34,14 @@ app.post('/send-to-npf', async (req, res) => {
       }
     );
 
+    // ✅ Log NPF's success response
+    console.log('✅ NPF Response:', npfResponse.data);
+
     res.status(npfResponse.status).json(npfResponse.data);
   } catch (error) {
+    // ❌ Log detailed NPF error
     console.error('❌ NPF Error:', error.response?.data || error.message);
+
     res.status(error.response?.status || 500).json({
       error: error.response?.data || error.message
     });
