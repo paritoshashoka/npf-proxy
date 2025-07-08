@@ -17,6 +17,16 @@ app.post('/send-to-npf', async (req, res) => {
     return res.status(403).json({ error: 'Forbidden: Invalid token' });
   }
 
+  // ✅ Optional: Log key fields to verify what's being forwarded
+  console.log('🎯 Sending to NPF:', {
+    name: payload.name,
+    email: payload.email,
+    mobile: payload.mobile,
+    class: payload.field_current_class,
+    stream: payload.field_current_stream,
+    school: payload.field_school_institution
+  });
+
   try {
     const npfResponse = await axios.post(
       'https://api.nopaperforms.io/lead/v1/create',
@@ -32,7 +42,7 @@ app.post('/send-to-npf', async (req, res) => {
 
     res.status(npfResponse.status).json(npfResponse.data);
   } catch (error) {
-    console.error('NPF Error:', error.response?.data || error.message);
+    console.error('❌ NPF Error:', error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
       error: error.response?.data || error.message
     });
